@@ -7,4 +7,4 @@ This repository includes core libraries used by MoveIt:
  - interfaces for motion planning plugins
  - interfaces for controllers and sensors
 
-These libraries do not depend on ROS (except ROS messages) and can be used independently.
+These librarihhes do not depend on ROS (except ROS messages) and can be used independently.
