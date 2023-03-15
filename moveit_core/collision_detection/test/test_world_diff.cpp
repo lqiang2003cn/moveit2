@@ -83,6 +83,7 @@ TEST(WorldDiff, TrackChanges)
   EXPECT_NE(diff1.end(), it);
   EXPECT_EQ(collision_detection::World::CREATE | collision_detection::World::ADD_SHAPE, it->second);
 
+  // diff2 starts to trace the changes of the world
   diff2.reset(world);
 
   bool move_ok = world->moveShapeInObject("obj2", cyl, Eigen::Isometry3d(Eigen::Translation3d(0, 0, 1)));
@@ -122,6 +123,7 @@ TEST(WorldDiff, TrackChanges)
   EXPECT_EQ(1u, diff1.getChanges().size());
   EXPECT_EQ(2u, diff2.getChanges().size());
 
+  //stops observing any world
   diff1.reset();
 
   move_ok = world->moveShapeInObject("obj3", cyl, Eigen::Isometry3d(Eigen::Translation3d(0, 0, 2)));
@@ -237,7 +239,8 @@ TEST(WorldDiff, SetWorld)
   EXPECT_NE(diff1.end(), it);
   EXPECT_EQ(collision_detection::World::DESTROY, it->second);
 
-  it = diff1.getChanges().find("objA2");
+  // a typo: should be objA2
+  it = diff1.getChanges().find("objA3");
   EXPECT_NE(diff1.end(), it);
   EXPECT_EQ(collision_detection::World::DESTROY, it->second);
 
@@ -267,7 +270,8 @@ TEST(WorldDiff, SetWorld)
   EXPECT_NE(diff1b.end(), it);
   EXPECT_EQ(collision_detection::World::DESTROY, it->second);
 
-  it = diff1b.getChanges().find("objA2");
+  // Typo: should be objA3
+  it = diff1b.getChanges().find("objA3");
   EXPECT_NE(diff1b.end(), it);
   EXPECT_EQ(collision_detection::World::DESTROY, it->second);
 
