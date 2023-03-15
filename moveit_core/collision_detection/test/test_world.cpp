@@ -208,9 +208,10 @@ TEST(World, TrackChanges)
 
   TestAction ta;
   World::ObserverHandle observer_ta;
-  observer_ta = world.addObserver([&ta](const World::ObjectConstPtr& object, World::Action action) {
-    return TrackChangesNotify(ta, object, action);
-  });
+  World::ObserverCallbackFn callback = [&ta](const World::ObjectConstPtr& object, World::Action action) {
+      return TrackChangesNotify(ta, object, action);
+  };
+  observer_ta = world.addObserver(callback);
 
   // Create some shapes
   shapes::ShapePtr ball = std::make_shared<shapes::Sphere>(1.0);
