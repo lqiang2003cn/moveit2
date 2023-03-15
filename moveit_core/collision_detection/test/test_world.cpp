@@ -49,20 +49,16 @@ TEST(World, AddRemoveShape)
   shapes::ShapePtr ball = std::make_shared<shapes::Sphere>(1.0);
   shapes::ShapePtr box = std::make_shared<shapes::Box>(1, 2, 3);
   shapes::ShapePtr cyl = std::make_shared<shapes::Cylinder>(4, 5);
-
   EXPECT_EQ(1, ball.use_count());
-
   EXPECT_FALSE(world.hasObject("ball"));
 
   // Add ball object
   world.addToObject("ball", ball, Eigen::Isometry3d::Identity());
-
   EXPECT_EQ(2, ball.use_count());
   EXPECT_TRUE(world.hasObject("ball"));
 
   bool move_ok = world.moveShapeInObject("ball", ball, Eigen::Isometry3d(Eigen::Translation3d(0, 0, 9)));
   EXPECT_TRUE(move_ok);
-
   EXPECT_EQ(2, ball.use_count());
   EXPECT_TRUE(world.hasObject("ball"));
 
@@ -71,81 +67,65 @@ TEST(World, AddRemoveShape)
 
   bool rm_wrong_shape = world.removeShapeFromObject("ball", box);
   EXPECT_FALSE(rm_wrong_shape);
-
   EXPECT_EQ(2, ball.use_count());
   EXPECT_EQ(1, box.use_count());
 
   // remove ball object
   bool rm_ball = world.removeShapeFromObject("ball", ball);
   EXPECT_TRUE(rm_ball);
-
   EXPECT_EQ(1, ball.use_count());
   EXPECT_FALSE(world.hasObject("ball"));
 
   // add ball again
   world.addToObject("ball", ball, Eigen::Isometry3d::Identity());
-
   EXPECT_EQ(2, ball.use_count());
   EXPECT_TRUE(world.hasObject("ball"));
-
   EXPECT_FALSE(world.hasObject("mix1"));
 
   {
     std::vector<shapes::ShapeConstPtr> shapes;
     EigenSTL::vector_Isometry3d poses;
-
     shapes.push_back(box);
     shapes.push_back(cyl);
     shapes.push_back(ball);
-
     poses.push_back(Eigen::Isometry3d(Eigen::Translation3d(0, 0, 1)));
     poses.push_back(Eigen::Isometry3d(Eigen::Translation3d(0, 0, 2)));
     poses.push_back(Eigen::Isometry3d(Eigen::Translation3d(0, 0, 3)));
-
     EXPECT_FALSE(world.hasObject("mix1"));
-
     // add mix1 object
     world.addToObject("mix1", shapes, poses);
   }
 
   EXPECT_TRUE(world.hasObject("mix1"));
-
   EXPECT_EQ(2, box.use_count());
   EXPECT_EQ(2, cyl.use_count());
   EXPECT_EQ(3, ball.use_count());
 
   // add ball2
   world.addToObject("ball2", ball, Eigen::Isometry3d(Eigen::Translation3d(0, 0, 4)));
-
   EXPECT_EQ(2, box.use_count());
   EXPECT_EQ(2, cyl.use_count());
   EXPECT_EQ(4, ball.use_count());
 
   bool rm_cyl = world.removeShapeFromObject("mix1", cyl);
   EXPECT_TRUE(rm_cyl);
-
   EXPECT_EQ(2, box.use_count());
   EXPECT_EQ(1, cyl.use_count());
   EXPECT_EQ(4, ball.use_count());
 
   rm_cyl = world.removeShapeFromObject("mix1", cyl);
   EXPECT_FALSE(rm_cyl);
-
   EXPECT_EQ(2, box.use_count());
   EXPECT_EQ(1, cyl.use_count());
   EXPECT_EQ(4, ball.use_count());
-
   EXPECT_TRUE(world.hasObject("mix1"));
-
   EXPECT_EQ(3u, world.size());
 
   {
     World::ObjectConstPtr obj = world.getObject("mix1");
     EXPECT_EQ(2, obj.use_count());
-
     ASSERT_EQ(2u, obj->shapes_.size());
     ASSERT_EQ(2u, obj->shape_poses_.size());
-
     // check translation.z of pose
     EXPECT_EQ(1.0, obj->shape_poses_[0](2, 3));
     EXPECT_EQ(3.0, obj->shape_poses_[1](2, 3));
@@ -156,27 +136,21 @@ TEST(World, AddRemoveShape)
     World::ObjectConstPtr obj2 = world.getObject("mix1");
     EXPECT_EQ(2, obj2.use_count());
     EXPECT_EQ(1, obj.use_count());
-
     EXPECT_EQ(1.0, obj2->shape_poses_[0](2, 3));
     EXPECT_EQ(5.0, obj2->shape_poses_[1](2, 3));
-
     EXPECT_EQ(1.0, obj->shape_poses_[0](2, 3));
     EXPECT_EQ(3.0, obj->shape_poses_[1](2, 3));
-
     // moving object causes copy, thus extra references to shapes in obj
     EXPECT_EQ(3, box.use_count());
     EXPECT_EQ(1, cyl.use_count());
     EXPECT_EQ(5, ball.use_count());
 
     world.removeObject("mix1");
-
     EXPECT_EQ(2u, world.size());
-
     // no change since obj2 still holds a ref
     EXPECT_EQ(3, box.use_count());
     EXPECT_EQ(1, cyl.use_count());
     EXPECT_EQ(5, ball.use_count());
-
     EXPECT_FALSE(world.hasObject("mix1"));
     EXPECT_TRUE(world.hasObject("ball2"));
 
@@ -185,22 +159,19 @@ TEST(World, AddRemoveShape)
     EXPECT_FALSE(obj3);
   }
 
+  // After getting out of the block, obj obj2 obj3 are destroyed because they are local variables
   EXPECT_EQ(1, box.use_count());
   EXPECT_EQ(1, cyl.use_count());
   EXPECT_EQ(3, ball.use_count());
-
   EXPECT_EQ(2u, world.size());
 
   world.clearObjects();
-
   EXPECT_EQ(1, box.use_count());
   EXPECT_EQ(1, cyl.use_count());
   EXPECT_EQ(1, ball.use_count());
-
   EXPECT_FALSE(world.hasObject("mix1"));
   EXPECT_FALSE(world.hasObject("ball"));
   EXPECT_FALSE(world.hasObject("ball2"));
-
   EXPECT_EQ(0u, world.size());
 }
 
